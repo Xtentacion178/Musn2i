@@ -1,0 +1,142 @@
+-- Check if the GUI already exists
+local playerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+local existingGui = playerGui:FindFirstChild("SongPlayerGui")
+
+if not existingGui then
+    -- Song Player GUI
+    local gui = Instance.new("ScreenGui")
+    gui.Name = "SongPlayerGui"
+    gui.ResetOnSpawn = false
+    gui.Parent = playerGui
+
+    -- Background Frame
+    local background = Instance.new("Frame")
+    background.Size = UDim2.new(0, 200, 0, 100)
+    background.BackgroundColor3 = Color3.new(0, 0, 0)
+    background.BorderColor3 = Color3.new(1, 1, 1)
+    background.BackgroundTransparency = 0.5
+    background.Position = UDim2.new(0.5, -100, 0.5, -50)
+    background.Active = true
+    background.Draggable = true
+    background.Parent = gui
+
+    -- Song ID Input Box
+    local idBox = Instance.new("TextBox")
+    idBox.Size = UDim2.new(0.5, 0, 0.2, 0)
+    idBox.Position = UDim2.new(0.25, 0, 0.2, 0)
+    idBox.Text = ""
+    idBox.PlaceholderText = "Enter song ID"
+    idBox.BackgroundColor3 = Color3.new(0, 0, 0)
+    idBox.TextColor3 = Color3.new(1, 1, 1)
+    idBox.BorderColor3 = Color3.new(1, 1, 1)
+    idBox.Parent = background
+
+    -- Play Button
+    local playButton = Instance.new("TextButton")
+    playButton.Size = UDim2.new(0.4, 0, 0.2, 0)
+    playButton.Position = UDim2.new(0.05, 0, 0.5, 0)
+    playButton.Text = "Play"
+    playButton.BackgroundColor3 = Color3.new(0, 0, 0)
+    playButton.TextColor3 = Color3.new(1, 1, 1)
+    playButton.BorderColor3 = Color3.new(1, 1, 1)
+    playButton.Parent = background
+
+    -- Stop Button
+    local stopButton = Instance.new("TextButton")
+    stopButton.Size = UDim2.new(0.4, 0, 0.2, 0)
+    stopButton.Position = UDim2.new(0.55, 0, 0.5, 0)
+    stopButton.Text = "Stop"
+    stopButton.BackgroundColor3 = Color3.new(0, 0, 0)
+    stopButton.TextColor3 = Color3.new(1, 1, 1)
+    stopButton.BorderColor3 = Color3.new(1, 1, 1)
+    stopButton.Parent = background
+
+    -- Close Button
+    local closeButton = Instance.new("TextButton")
+    closeButton.Size = UDim2.new(0.12, 0, 0.12, 0)  -- Increased size
+    closeButton.Position = UDim2.new(1, -40, 0, 10)  -- Adjusted position
+    closeButton.Text = "X"
+    closeButton.BackgroundColor3 = Color3.new(1, 0, 0)
+    closeButton.TextColor3 = Color3.new(1, 1, 1)
+    closeButton.BorderSizePixel = 0
+    closeButton.Parent = background
+
+    -- Minimize Toggle Button
+    local minimizeButton = Instance.new("TextButton")
+    minimizeButton.Size = UDim2.new(0.07, 0, 0.07, 0)  -- Slightly larger
+    minimizeButton.Position = UDim2.new(0.95, -25, 0, 10)  -- Adjusted position
+    minimizeButton.BackgroundColor3 = background.BackgroundColor3  -- Same background color as GUI
+    minimizeButton.BackgroundTransparency = 0.5
+    minimizeButton.Text = "-"
+    minimizeButton.TextColor3 = Color3.new(1, 1, 1)  -- White text
+    minimizeButton.BorderSizePixel = 1
+    minimizeButton.BorderColor3 = Color3.new(1, 1, 1)  -- White border (initially)
+    minimizeButton.Parent = gui
+
+    -- Audio Instance
+    local audio = Instance.new("Sound")
+    audio.Parent = game.Workspace
+    audio.Volume = 1
+    audio.Looped = true  -- Ensure audio loops
+
+    -- Play Button Functionality
+    playButton.MouseButton1Click:Connect(function()
+        local id = tonumber(idBox.Text)
+        if id then
+            audio.SoundId = "rbxassetid://"..id
+            audio:Play()
+        else
+            print("ID not found.")
+        end
+    end)
+
+    -- Stop Button Functionality
+    stopButton.MouseButton1Click:Connect(function()
+        audio:Stop()
+    end)
+
+    -- Close Button Functionality
+    closeButton.MouseButton1Click:Connect(function()
+        audio:Stop()  -- Ensure audio stops before GUI is destroyed
+        gui:Destroy()
+    end)
+
+    -- Minimize Button Functionality
+    local isMinimized = false
+    minimizeButton.MouseButton1Click:Connect(function()
+        if isMinimized then
+            background.Visible = true
+            minimizeButton.Text = "-"
+        else
+            background.Visible = false
+            minimizeButton.Text = "+"
+        end
+        isMinimized = not isMinimized
+    end)
+
+    -- Function to alternate border color
+    local function toggleBorderColor()
+        local borderColors = {Color3.new(1, 1, 1), Color3.new(0, 0, 0)}
+        local index = 1
+        while true do
+            wait(1)
+            index = 3 - index
+            local color = borderColors[index]
+            background.BorderColor3 = color
+            idBox.BorderColor3 = color
+            playButton.BorderColor3 = color
+            stopButton.BorderColor3 = color
+            minimizeButton.BorderColor3 = color
+        end
+    end
+
+    -- Start toggling border color
+    toggleBorderColor()
+else
+    -- Notify that the GUI has already been created
+    game.StarterGui:SetCore("SendNotification", {
+        Title = "Notification";
+        Text = "Song Player GUI has already been created.";
+        Duration = 3;
+    })
+end
